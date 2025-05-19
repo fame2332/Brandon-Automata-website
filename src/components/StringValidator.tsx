@@ -7,7 +7,7 @@ import {
   validatePDA, 
   validateCFG
 } from '../types/automata';
-import { Play, FileText, Check, X, AlertCircle } from 'lucide-react';
+import { Play, Pause, FileText, Check, X, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface StringValidatorProps {
   automaton: DFA | CFG | PDA;
@@ -33,6 +33,7 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
   const [simulationInProgress, setSimulationInProgress] = useState<boolean>(false);
   const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   useEffect(() => {
     return () => {
@@ -115,6 +116,7 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
       setSimulationInProgress(false);
       setCurrentStateIndex(0);
       setSimulationIndex(null);
+      setIsPaused(false);
       if (onSimulationStateChange) {
         onSimulationStateChange(null);
       }
@@ -124,6 +126,7 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
     setSimulationIndex(index);
     setCurrentStateIndex(0);
     setSimulationInProgress(true);
+    setIsPaused(false);
 
     const states = validationResults[index].states;
     if (!states) return;
@@ -141,6 +144,7 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
         clearInterval(interval);
         setSimulationInterval(null);
         setSimulationInProgress(false);
+        setIsPaused(false);
         if (onSimulationStateChange) {
           onSimulationStateChange(null);
         }
@@ -151,9 +155,77 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
         onSimulationStateChange(states[stateIndex].state);
       }
       setCurrentStateIndex(stateIndex);
-    }, 1000);
+    }, 500);
 
     setSimulationInterval(interval);
+  };
+
+  const togglePlayPause = () => {
+    if (!simulationInProgress || simulationIndex === null) return;
+    
+    if (isPaused) {
+      const states = validationResults[simulationIndex].states;
+      if (!states) return;
+      
+      let stateIndex = currentStateIndex;
+      
+      const interval = setInterval(() => {
+        stateIndex++;
+        
+        if (stateIndex >= states.length) {
+          clearInterval(interval);
+          setSimulationInterval(null);
+          setSimulationInProgress(false);
+          setIsPaused(false);
+          if (onSimulationStateChange) {
+            onSimulationStateChange(null);
+          }
+          return;
+        }
+
+        if (onSimulationStateChange) {
+          onSimulationStateChange(states[stateIndex].state);
+        }
+        setCurrentStateIndex(stateIndex);
+      }, 500);
+      
+      setSimulationInterval(interval);
+      setIsPaused(false);
+    } else {
+      if (simulationInterval) {
+        clearInterval(simulationInterval);
+        setSimulationInterval(null);
+      }
+      setIsPaused(true);
+    }
+  };
+
+  const stepBackward = () => {
+    if (!simulationInProgress || simulationIndex === null || !isPaused) return;
+    
+    const states = validationResults[simulationIndex].states;
+    if (!states) return;
+    
+    const newIndex = Math.max(0, currentStateIndex - 1);
+    setCurrentStateIndex(newIndex);
+    
+    if (onSimulationStateChange) {
+      onSimulationStateChange(states[newIndex].state);
+    }
+  };
+
+  const stepForward = () => {
+    if (!simulationInProgress || simulationIndex === null || !isPaused) return;
+    
+    const states = validationResults[simulationIndex].states;
+    if (!states) return;
+    
+    const newIndex = Math.min(states.length - 1, currentStateIndex + 1);
+    setCurrentStateIndex(newIndex);
+    
+    if (onSimulationStateChange) {
+      onSimulationStateChange(states[newIndex].state);
+    }
   };
 
   return (
@@ -264,6 +336,37 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
                         )}
                       </div>
                     </div>
+                    
+                    {simulationIndex === index && simulationInProgress && (
+                      <div className="mt-3 flex items-center justify-center space-x-3 pt-3 border-t border-gray-200">
+                        <button 
+                          onClick={stepBackward}
+                          disabled={!isPaused || currentStateIndex === 0}
+                          className={`p-2 rounded-full ${!isPaused || currentStateIndex === 0 ? 'text-gray-300' : 'text-blue-600 hover:bg-blue-100'}`}
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+                        
+                        <button
+                          onClick={togglePlayPause}
+                          className="p-2 rounded-full text-blue-600 hover:bg-blue-100"
+                        >
+                          {isPaused ? <Play size={20} /> : <Pause size={20} />}
+                        </button>
+                        
+                        <button 
+                          onClick={stepForward}
+                          disabled={!isPaused || !result.states || currentStateIndex === result.states.length - 1}
+                          className={`p-2 rounded-full ${!isPaused || !result.states || currentStateIndex === result.states.length - 1 ? 'text-gray-300' : 'text-blue-600 hover:bg-blue-100'}`}
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                        
+                        <div className="text-sm text-gray-600 ml-2">
+                          Step {currentStateIndex + 1} of {result.states ? result.states.length : '?'}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
