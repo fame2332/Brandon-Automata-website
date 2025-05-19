@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="%232563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/></svg>') 8 8, auto;
+}
+
+button, a, select, input[type="submit"] {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="%232563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="7" fill="%234ADE80"/><circle cx="8" cy="8" r="3"/></svg>') 8 8, pointer;
+  transition: transform 0.2s ease;
+}
+
+button:hover, a:hover, select:hover, input[type="submit"]:hover {
+  transform: scale(1.05);
+}
