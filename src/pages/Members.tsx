@@ -19,7 +19,7 @@ const teamMembers: TeamMember[] = [
     email: 'matthew@example.com',
     github: 'matthewechavez',
     website: 'matthewechavez.dev',
-    bio: 'Specializes in automata theory and formal language processing. Lead developer for DFA visualization and core architecture.',
+    bio: 'Specializes in automata theory and formal language ',
     image: '/images/Echavez.jpg',
     specialty: 'DFA Implementation'
   },
@@ -29,17 +29,17 @@ const teamMembers: TeamMember[] = [
     email: 'brandon@example.com',
     github: 'brandonseducon',
     website: 'brandonseducon.tech',
-    bio: 'Developed core algorithms for string validation and simulation. Expertise in computational complexity for optimized performance.',
+    bio: 'Developed core algorithms for string validation and simulation. ',
     image: '/images/brandon.jpg',
     specialty: 'Algorithms & Automata'
   },
   {
-    name: 'Lauren Miracle Sotong',
+    name: 'Lauren Sotong',
     role: 'UI/UX Designer',
     email: 'lauren@example.com',
     github: 'laurensotong',
     website: 'laurensotong.design',
-    bio: 'Created the interface and user experience design. Focus on intuitive design makes complex automata concepts accessible to everyone.',
+    bio: 'Created the interface and user experience design.',
     image: '/images/ayen.jpg',
     specialty: 'User Experience'
   },
@@ -49,7 +49,7 @@ const teamMembers: TeamMember[] = [
     email: 'vanjo@example.com',
     github: 'vanjogeraldez',
     website: 'vanjogeraldez.dev',
-    bio: 'Specialized in creating responsive and interactive frontend components. Contributed to visualization enhancements and user interface improvements.',
+    bio: 'Specialized in creating responsive and interactive',
     image: '/images/Vanjo.png',
     specialty: 'Frontend Development'
   }
