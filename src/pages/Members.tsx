@@ -42,6 +42,16 @@ const teamMembers: TeamMember[] = [
     bio: 'Created the interface and user experience design. Focus on intuitive design makes complex automata concepts accessible to everyone.',
     image: '/images/ayen.jpg',
     specialty: 'User Experience'
+  },
+  {
+    name: 'Vanjo Geraldez',
+    role: 'Frontend Developer',
+    email: 'vanjo@example.com',
+    github: 'vanjogeraldez',
+    website: 'vanjogeraldez.dev',
+    bio: 'Specialized in creating responsive and interactive frontend components. Contributed to visualization enhancements and user interface improvements.',
+    image: '/images/Vanjo.png',
+    specialty: 'Frontend Development'
   }
 ];
 
@@ -51,7 +61,7 @@ const Members = () => {
   useEffect(() => {
     const showMembersSequentially = () => {
       const timer = setTimeout(() => {
-        setVisibleMembers([0, 1, 2]);
+        setVisibleMembers([0, 1, 2, 3]);
       }, 300);
 
       return () => clearTimeout(timer);
