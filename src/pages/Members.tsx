@@ -84,7 +84,7 @@ const Members = () => {
           </p>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <section className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {teamMembers.map((member, index) => (
             <div 
               key={index}
