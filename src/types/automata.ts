@@ -213,18 +213,17 @@ export const DFA_2: DFA = {
 export const CFG_2: CFG = {
   start_symbol: 'S',
   productions: [
-    'S → A B C D E F A I J K L',
-    'A → 111 | 000 | 101 | 001 | 00G',
-    'B → 7B | 0B | λ',
+    'S → A B C D E A I J K L',
+    'A → 111 | 000 | 101 | 001 | 001',
+    'B → 1B | 0B | λ',
     'C → 1 | 00',
     'D → 1100 | 100D | λ',
-    'E → 101F | 111 | 000F | λ',
-    'F → G',
+    'E → 101F | 111F | 000F | λ',
     'G → C',
-    'H → 11011',
-    'I → 111I',
-    'J → 0 | 10J',
-    'K → K | 0K | 01 | 1',
+    'H → 1 | 0 | 11',
+    'I → 1 | 1L',
+    'J → 0 | 0J',
+    'K → 1K | 0K | 0 | 1',
     'L → B'
   ]
 };
