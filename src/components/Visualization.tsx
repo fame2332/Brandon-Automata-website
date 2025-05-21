@@ -16,6 +16,23 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
   const [loading, setLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   
+  // Determine which PDA image to show based on automaton data
+  const getPdaImage = () => {
+    if (!automaton || type !== 'PDA') return '/images/PDA1.png';
+    
+    // Check automaton properties to determine which PDA image to show
+    // If automaton has state "Read8" and no "Read13", it's likely PDA2
+    const pdaData = automaton as PDA;
+    const hasRead8 = pdaData.states.includes('Read8');
+    const hasRead13 = pdaData.states.includes('Read13');
+    
+    if (hasRead8 && !hasRead13) {
+      return '/images/PDABrandon2.drawio.png'; // PDA 2
+    } else {
+      return '/images/PDA1.png'; // PDA 1 (default)
+    }
+  };
+  
   // Render visualization when type or automaton changes
   useEffect(() => {
     if (!automaton || !type || !graphRef.current) return;
@@ -23,8 +40,8 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
     setLoading(true);
     
     try {
-      if (type === 'DFA' || type === 'PDA') {
-        const dotCode = generateDotGraph(automaton as DFA | PDA, highlightedState, '#4ade80');
+      if (type === 'DFA') {
+        const dotCode = generateDotGraph(automaton as DFA, highlightedState, '#4ade80');
         
         if (graphRef.current) {
           graphRef.current.innerHTML = '';
@@ -33,14 +50,19 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
             useWorker: false
           })
             .width('100%')
-            .height(type === 'PDA' ? 700 : 500)
-            .zoom(false) // Disable built-in zoom
+            .height(500)
+            .zoom(false)
             .fit(true)
             .renderDot(dotCode)
             .on('end', () => {
               setLoading(false);
             });
         }
+      } else if (type === 'PDA') {
+        if (graphRef.current) {
+          renderPdaImage();
+        }
+        setLoading(false);
       } else if (type === 'CFG') {
         if (graphRef.current) {
           renderCFG(automaton as CFG);
@@ -52,6 +74,54 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
       setLoading(false);
     }
   }, [automaton, type, highlightedState]);
+  
+  const renderPdaImage = () => {
+    if (!graphRef.current) return;
+    
+    graphRef.current.innerHTML = '';
+    
+    // Create image container
+    const imageContainer = document.createElement('div');
+    imageContainer.className = 'flex flex-col items-center justify-center w-full';
+    
+    // Create image element - adjusted size for better fit
+    const img = document.createElement('img');
+    img.src = getPdaImage();
+    img.alt = 'PDA Visualization';
+    img.className = 'object-contain cursor-zoom-in'; // Removed w-full to prevent stretching
+    img.style.maxHeight = '1200px'; // Further reduced size
+    img.style.margin = 'auto'; // Center the image
+    
+    // Make the image clickable for fullscreen toggle
+    img.onclick = toggleFullscreen;
+    
+    // Add image to container first
+    imageContainer.appendChild(img);
+    
+    // Create status section for highlighted state
+    if (highlightedState) {
+      const statusContainer = document.createElement('div');
+      statusContainer.className = 'mt-4 p-3 bg-green-100 border border-green-300 rounded-lg text-center';
+      
+      const stateLabel = document.createElement('span');
+      stateLabel.className = 'font-medium text-green-800';
+      stateLabel.textContent = `Current State: ${highlightedState}`;
+      
+      statusContainer.appendChild(stateLabel);
+      imageContainer.appendChild(statusContainer);
+    }
+    
+    // Add description
+    const description = document.createElement('div');
+    description.className = 'mt-4 text-sm text-gray-600 text-center max-w-xl mx-auto';
+    description.textContent = img.src.includes('PDA1.png')
+      ? 'PDA Visualization: This diagram shows the state transitions and behavior of the pushdown automaton. Click the diagram to view in fullscreen.'
+      : 'PDA Visualization: Alternative representation of the pushdown automaton structure. Click the diagram to view in fullscreen.';
+    
+    // Append elements
+    imageContainer.appendChild(description);
+    graphRef.current.appendChild(imageContainer);
+  };
   
   const renderCFG = (cfg: CFG) => {
     if (!graphRef.current) return;
@@ -106,16 +176,6 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
       ref={containerRef}
       className={`bg-white rounded-lg shadow-md overflow-hidden relative ${isFullscreen ? 'fixed inset-0 z-50 p-4 bg-white' : ''}`}
     >
-      {isFullscreen && (
-        <button 
-          onClick={toggleFullscreen}
-          className="absolute top-4 right-4 z-10 bg-red-600 text-white p-2 rounded-full shadow-lg hover:bg-red-700 transition-colors"
-          aria-label="Exit fullscreen"
-        >
-          <X size={20} />
-        </button>
-      )}
-      
       {!automaton || !type ? (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-blue-50">
           <FileCode size={48} className="text-blue-400 mb-4" />
@@ -133,7 +193,7 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
               {type === 'PDA' && 'Pushdown Automaton (PDA)'}
             </h3>
             
-            {(type === 'DFA' || type === 'PDA') && !loading && (
+            {(type === 'DFA' || type === 'PDA') && !loading && !isFullscreen && (
               <button
                 onClick={toggleFullscreen}
                 className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors"
@@ -152,10 +212,16 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
             ) : (
               <div 
                 ref={graphRef} 
-                className={`${isFullscreen ? 'h-full' : type === 'CFG' ? 'h-auto' : type === 'PDA' ? 'h-[700px]' : 'h-[500px]'} overflow-hidden flex justify-center ${type === 'PDA' ? 'w-[70%] mx-auto' : 'w-full'}`}
+                className={`${isFullscreen ? 'h-full' : type === 'CFG' ? 'h-auto' : type === 'PDA' ? 'h-auto' : 'h-[500px]'} overflow-auto flex justify-center ${type === 'PDA' ? 'w-full mx-auto' : 'w-full'}`}
               ></div>
             )}
           </div>
+          
+          {isFullscreen && (
+            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 bg-opacity-70 text-white px-4 py-2 rounded-full text-sm">
+              Press ESC to exit fullscreen
+            </div>
+          )}
         </div>
       )}
     </div>
