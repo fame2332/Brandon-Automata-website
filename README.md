@@ -18,10 +18,8 @@ Follow these steps to set up and run the application locally:
    Open your terminal and run the following command to clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/Brandon-Automata-Website.git
+   git clone https://github.com/fame2332/Brandon-Automata-Website.git
    ```
-
-   Replace `yourusername` with your GitHub username.
 
 2. **Navigate to the Project Directory**
 
@@ -44,7 +42,7 @@ Follow these steps to set up and run the application locally:
    Start the development server:
 
    ```bash
-   npm start
+   npm run dev
    ```
 
    This will start the application, and you can view it in your web browser at `http://localhost:3000`.
@@ -65,10 +63,6 @@ Follow these steps to set up and run the application locally:
 - Click on any "View" button in the table to see the corresponding automaton visualization.
 - Use the fullscreen button to view the automaton in fullscreen mode.
 - Interact with the visualizations to explore automata theory concepts.
-
-## Contributing
-
-If you would like to contribute to this project, please fork the repository and submit a pull request.
 
 ## License
 
