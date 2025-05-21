@@ -126,38 +126,14 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
     setSimulationIndex(index);
     setCurrentStateIndex(0);
     setSimulationInProgress(true);
-    setIsPaused(false);
+    setIsPaused(true);
 
     const states = validationResults[index].states;
     if (!states) return;
 
-    let stateIndex = 0;
     if (onSimulationStateChange) {
-      onSimulationStateChange(states[stateIndex].state);
+      onSimulationStateChange(states[0].state);
     }
-    setCurrentStateIndex(stateIndex);
-
-    const interval = setInterval(() => {
-      stateIndex++;
-      
-      if (stateIndex >= states.length) {
-        clearInterval(interval);
-        setSimulationInterval(null);
-        setSimulationInProgress(false);
-        setIsPaused(false);
-        if (onSimulationStateChange) {
-          onSimulationStateChange(null);
-        }
-        return;
-      }
-
-      if (onSimulationStateChange) {
-        onSimulationStateChange(states[stateIndex].state);
-      }
-      setCurrentStateIndex(stateIndex);
-    }, 500);
-
-    setSimulationInterval(interval);
   };
 
   const togglePlayPause = () => {
@@ -175,11 +151,7 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
         if (stateIndex >= states.length) {
           clearInterval(interval);
           setSimulationInterval(null);
-          setSimulationInProgress(false);
-          setIsPaused(false);
-          if (onSimulationStateChange) {
-            onSimulationStateChange(null);
-          }
+          setIsPaused(true);
           return;
         }
 
@@ -187,7 +159,7 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
           onSimulationStateChange(states[stateIndex].state);
         }
         setCurrentStateIndex(stateIndex);
-      }, 500);
+      }, 1000);
       
       setSimulationInterval(interval);
       setIsPaused(false);
