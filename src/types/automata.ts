@@ -213,7 +213,7 @@ export const DFA_2: DFA = {
 export const CFG_2: CFG = {
   start_symbol: 'S',
   productions: [
-    'S → A B C D E A I J K L',
+    'S → A B C D E G H I J K L',
     'A → 111 | 000 | 101 | 001 | 001',
     'B → 1B | 0B | λ',
     'C → 1 | 00',
