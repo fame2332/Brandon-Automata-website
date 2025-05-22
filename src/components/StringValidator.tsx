@@ -152,6 +152,14 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
           clearInterval(interval);
           setSimulationInterval(null);
           setIsPaused(true);
+          
+          // Highlight the final state based on validity
+          if (onSimulationStateChange && states.length > 0) {
+            // Get the final state and add color indicator with validity info
+            const isValid = validationResults[simulationIndex].isValid;
+            const finalState = states[states.length - 1].state;
+            onSimulationStateChange(`${finalState}|${isValid ? 'valid' : 'invalid'}`);
+          }
           return;
         }
 
@@ -196,7 +204,13 @@ const StringValidator = ({ automaton, type, onSimulationStateChange }: StringVal
     setCurrentStateIndex(newIndex);
     
     if (onSimulationStateChange) {
-      onSimulationStateChange(states[newIndex].state);
+      // If we reached the final state, add validity indicator
+      if (newIndex === states.length - 1) {
+        const isValid = validationResults[simulationIndex].isValid;
+        onSimulationStateChange(`${states[newIndex].state}|${isValid ? 'valid' : 'invalid'}`);
+      } else {
+        onSimulationStateChange(states[newIndex].state);
+      }
     }
   };
 

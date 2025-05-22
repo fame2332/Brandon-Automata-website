@@ -16,6 +16,23 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
   const [loading, setLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   
+  // Extract state and validity information from highlightedState
+  const getStateInfo = () => {
+    if (!highlightedState) return { state: undefined, isValid: true };
+    
+    // Check if the state has a validity marker
+    if (highlightedState.includes('|')) {
+      const [state, validity] = highlightedState.split('|');
+      return { 
+        state, 
+        isValid: validity === 'valid',
+        isFinalState: true
+      };
+    }
+    
+    return { state: highlightedState, isValid: true, isFinalState: false };
+  };
+  
   // Determine which PDA image to show based on automaton data
   const getPdaImage = () => {
     if (!automaton || type !== 'PDA') return '/images/PDA1.png';
@@ -41,7 +58,12 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
     
     try {
       if (type === 'DFA') {
-        const dotCode = generateDotGraph(automaton as DFA, highlightedState, '#4ade80');
+        const stateInfo = getStateInfo();
+        const highlightColor = stateInfo.isFinalState 
+          ? (stateInfo.isValid ? '#4ade80' : '#ef4444') // green for valid, red for invalid
+          : '#4ade80'; // default green for non-final states
+        
+        const dotCode = generateDotGraph(automaton as DFA, stateInfo.state, highlightColor);
         
         if (graphRef.current) {
           graphRef.current.innerHTML = '';
@@ -80,6 +102,9 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
     
     graphRef.current.innerHTML = '';
     
+    // Extract state and validity information
+    const stateInfo = getStateInfo();
+    
     // Create image container
     const imageContainer = document.createElement('div');
     imageContainer.className = 'flex flex-col items-center justify-center w-full';
@@ -88,9 +113,9 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
     const img = document.createElement('img');
     img.src = getPdaImage();
     img.alt = 'PDA Visualization';
-    img.className = 'object-contain cursor-zoom-in'; // Removed w-full to prevent stretching
-    img.style.maxHeight = '1200px'; // Further reduced size
-    img.style.margin = 'auto'; // Center the image
+    img.className = 'object-contain cursor-zoom-in';
+    img.style.maxHeight = '1200px';
+    img.style.margin = 'auto';
     
     // Make the image clickable for fullscreen toggle
     img.onclick = toggleFullscreen;
@@ -99,13 +124,29 @@ const Visualization = ({ automaton, type, highlightedState }: VisualizationProps
     imageContainer.appendChild(img);
     
     // Create status section for highlighted state
-    if (highlightedState) {
+    if (stateInfo.state) {
       const statusContainer = document.createElement('div');
-      statusContainer.className = 'mt-4 p-3 bg-green-100 border border-green-300 rounded-lg text-center';
+      
+      // Use different styling based on validity for final state
+      if (stateInfo.isFinalState) {
+        statusContainer.className = stateInfo.isValid
+          ? 'mt-4 p-3 bg-green-100 border border-green-300 rounded-lg text-center'
+          : 'mt-4 p-3 bg-red-100 border border-red-300 rounded-lg text-center';
+      } else {
+        statusContainer.className = 'mt-4 p-3 bg-green-100 border border-green-300 rounded-lg text-center';
+      }
       
       const stateLabel = document.createElement('span');
-      stateLabel.className = 'font-medium text-green-800';
-      stateLabel.textContent = `Current State: ${highlightedState}`;
+      stateLabel.className = stateInfo.isFinalState
+        ? (stateInfo.isValid ? 'font-medium text-green-800' : 'font-medium text-red-800')
+        : 'font-medium text-green-800';
+      
+      // Show validity info for final state
+      if (stateInfo.isFinalState) {
+        stateLabel.textContent = `Final State: ${stateInfo.state} - ${stateInfo.isValid ? 'VALID' : 'INVALID'}`;
+      } else {
+        stateLabel.textContent = `Current State: ${stateInfo.state}`;
+      }
       
       statusContainer.appendChild(stateLabel);
       imageContainer.appendChild(statusContainer);
